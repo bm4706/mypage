@@ -1,0 +1,27 @@
+from pymongo import MongoClient
+client = MongoClient('mongodb+srv://sparta:test@cluster0.aolfafs.mongodb.net/?retryWrites=true&w=majority')
+db = client.dbsparta
+
+# 아저씨 순위찾아오기
+
+""" movie = db.movies2.find_one({'title':'아저씨'})
+print(movie['rank'])
+
+ """
+
+
+# 하모니와 같은 관람가 영화 제목 가져오기
+
+""" movie = db.movies2.find_one({'title':'하모니'})
+age = movie['age']
+ # 여러개 가져오기
+movies = list(db.movies2.find({'age':age},{'_id':False}))
+ # for 문으로 하나하나 꺼내오기
+for m in movies:
+    print(m['title'])
+ """
+
+# 부당거래 영화의 관람가를 18세 이상으로 만들기    
+db.movies2.update_one({'title':'부당거래'},{'$set':{'age':'18세 이상 관람가'}})
+
+# 지니 뮤직 순위 50위 까지 스크래핑
