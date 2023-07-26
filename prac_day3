@@ -1,0 +1,43 @@
+import requests
+from bs4 import BeautifulSoup
+
+#몽고db가져오기
+from pymongo import MongoClient
+client = MongoClient('mongodb+srv://sparta:test@cluster0.aolfafs.mongodb.net/?retryWrites=true&w=majority')
+db = client.dbsparta
+
+
+URL = "https://movie.daum.net/ranking/reservation"
+headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+data = requests.get(URL, headers=headers)
+
+# 원하는걸 빠르게 솎아내서 가져오는 라이브러리
+soup = BeautifulSoup(data.text, 'html.parser')
+
+#li 에서 copy selector 해서 one 뒤에 붙여넣기
+#title = soup.select_one('#mainContent > div > div.box_ranking > ol > li:nth-child(1) > div > div.thumb_cont > strong > a') # 하나만 가져오는 뜻
+
+# 이제는 여러개를 가져와야하므로 li 뒤에를 제거하고 select_one에서 select로 변경
+lis = soup.select('#mainContent > div > div.box_ranking > ol > li')
+
+# print(title.text) 텍스트만 가져옴 (지금은 영화제목 밀수를 가져옴)
+# print(title['href']) href 만가져옴
+
+# 모든 영화를 리스트 형태로 가져오고 싶음 
+
+for li in lis:
+    rank = li.select_one('.rank_num').text
+    title = li.select_one('.link_txt').text # lis 하나하나 link_txt 배치
+    #print(title.text) text만(영화제목) 가져오고싶다
+
+    rate = li.select_one('.txt_grade').text
+    
+    doc = {
+        'rank':rank,
+        'title':title,
+        'rate':rate
+    }
+
+    db.movies.insert_one(doc)
+
+    
